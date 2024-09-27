@@ -1,5 +1,5 @@
-name: GitHub Actions Trigger for Auto-Grading
-run-name: ${{ github.actor }} is submitting their 🏠 💪 for 🎓 on GitHub Actions 🚀
+name: GitHub Actions Trigger Queue for Auto-Grading
+run-name: ${{ github.actor }} is submitting their 🏠 home 💪 work for 🤖 bot 🎓 grading on GitHub Actions 🚀
 on: [push]
 jobs:
   Explore-GitHub-Actions:
@@ -8,12 +8,14 @@ jobs:
       AZURE_SERVICEBUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICEBUS_CONNECTION_STRING }}
       AZURE_SERVICEBUS_QUEUE: ${{ vars.AZURE_SERVICEBUS_QUEUE }}
     steps:
+      - run: echo "DT=$(date +"%Y-%m-%d %H:%M:%S)" >> $GITHUB_ENV
+      - run: echo "🗓️ The job was triggerd on $DT."
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - run: echo "🪈 The queue name is ${{ env.AZURE_SERVICEBUS_QUEUE }}."
       - run: pip install azure-servicebus-cli
-      - run: azsb send --queue ${{ env.AZURE_SERVICEBUS_QUEUE }} --message  ${{ github.repository }}
+      - run: azsb send --queue ${{ env.AZURE_SERVICEBUS_QUEUE }} --message '{"timestamp":"$DT","cmd":"graderbot","repo_url":"${{ github.repository }}"}'
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
       # Invoke azure function using HTTP POST to queue the submission for grading
